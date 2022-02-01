@@ -1,0 +1,14 @@
+#test-path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
+
+$exists = get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU -Name UseWUServer | select -expandproperty UseWuServer 
+while("1" -contains $exists)
+{
+    write-host "It is $exists." -ForegroundColor red
+    Set-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU -Name UseWUServer -value 0
+    $exists = get-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU -Name UseWUServer | select -expandproperty UseWuServer
+    write-host "It is now $Exists" -ForegroundColor Green
+    write-host "Stopping wuauserv (Windows Updates Service)"
+    get-service wuauserv | stop-service
+    start-sleep 5
+    get-service wuauserv | start-service
+}
